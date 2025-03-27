@@ -11,12 +11,29 @@ def get_lr_scheduler(
     if name == "cosine":
         if 'total_iters' in kwargs:
             kwargs['T_max'] = kwargs.pop('total_iters')
+        
+        # Thêm hỗ trợ cho warm up
+        if 'num_warmup_steps' in kwargs:
+            num_warmup_steps = kwargs.pop('num_warmup_steps')
+            eta_min = kwargs.get('eta_min', 0)
+        
+        # Sử dụng get_cosine_schedule_with_warmup từ transformers hoặc torchtune
+        # hoặc triển khai custom scheduler
+            from transformers import get_cosine_schedule_with_warmup
+            return get_cosine_schedule_with_warmup(
+                optimizer, 
+                num_warmup_steps=num_warmup_steps, 
+                num_training_steps=kwargs['T_max'],
+                num_cycles=0.5,
+                last_epoch=-1
+            )
+    
         if 'eta_min' in kwargs:
-             return torch.optim.lr_scheduler.CosineAnnealingLR(
-                 optimizer, 
-                 T_max=kwargs['T_max'],
-                 eta_min=kwargs['eta_min']        
-            )          
+            return torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer,
+                T_max=kwargs['T_max'],
+                eta_min=kwargs['eta_min']
+            )
         return torch.optim.lr_scheduler.CosineAnnealingLR(
             optimizer, **kwargs
         )

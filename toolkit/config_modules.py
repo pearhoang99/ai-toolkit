@@ -289,13 +289,13 @@ class TrainConfig:
         self.lr_scheduler = kwargs.get('lr_scheduler', 'constant')
         self.lr_scheduler_params = kwargs.get('lr_scheduler_params', {})
                 
-         # Thêm validation cho cosine
-         if self.lr_scheduler == "cosine":
-             if 'total_iters' not in self.lr_scheduler_params:
-                 raise ValueError("Cosine scheduler requires total_iters parameter")
-             if 'eta_min' not in self.lr_scheduler_params:
-                 self.lr_scheduler_params['eta_min'] = 0  # Default value
-         
+        # Thêm validation cho cosine
+        if self.lr_scheduler == "cosine":
+            if 'total_iters' not in self.lr_scheduler_params:
+                raise ValueError("Cosine scheduler requires total_iters parameter")
+            if 'eta_min' not in self.lr_scheduler_params:
+                self.lr_scheduler_params['eta_min'] = 0  # Default value
+        
         self.min_denoising_steps: int = kwargs.get('min_denoising_steps', 0)
         self.max_denoising_steps: int = kwargs.get('max_denoising_steps', 1000)
         self.batch_size: int = kwargs.get('batch_size', 1)

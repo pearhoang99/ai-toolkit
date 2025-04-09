@@ -323,6 +323,34 @@ class BaseSDTrainProcess(BaseTrainProcess):
         # send to be generated
         self.sd.generate_images(gen_img_config_list, sampler=sample_config.sampler)
 
+        if self.logger and hasattr(self.logger, 'log_image') and step is not None:
+            import glob
+            from PIL import Image
+            import re
+    
+            # Tìm tất cả ảnh được tạo trong step hiện tại
+            step_str = str(step).zfill(9)
+            pattern = os.path.join(
+                sample_folder, 
+                f"*_{step_str}_*.{self.sample_config.ext}"
+            )
+            generated_images = glob.glob(pattern)
+    
+            # Log từng ảnh kèm prompt tương ứng
+            for img_path in generated_images:
+                # Extract số thứ tự ảnh từ tên file (ví dụ: ..._000000100_2.jpg → 2)
+                match = re.search(rf'_(\d+)\.{self.sample_config.ext}$', os.path.basename(img_path))
+                if match:
+                    img_index = int(match.group(1))
+                    if img_index < len(sample_config.prompts):
+                        prompt = sample_config.prompts[img_index]
+                        img = Image.open(img_path)
+                        self.logger.log_image(
+                            image=img,
+                            id=f"step_{step}_sample_{img_index}",
+                            caption=f"{prompt} (Step {step})"
+                        )
+
         if self.ema is not None:
             self.ema.train()
 

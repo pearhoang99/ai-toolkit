@@ -19,9 +19,6 @@ def get_lr_scheduler(
             kwargs['T_0'] = kwargs.pop('total_iters')
         return torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
-            T_0=kwargs.get('T_0', 10),
-            T_mult=kwargs.get('T_mult', 1),
-            eta_min=kwargs.get('eta_min', 0),    
             **kwargs
         )
     elif name == "step":

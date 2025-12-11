@@ -17,6 +17,13 @@ from toolkit.paths import KEYMAPS_ROOT
 from toolkit.saving import get_lora_keymap_from_model_keymap
 from optimum.quanto import QBytesTensor
 
+def ensure_same_device(tensor, target_device):
+    """Đảm bảo tensor cùng device với target"""
+    if isinstance(tensor, torch.Tensor):
+        return tensor.to(target_device)
+    else:
+        return torch.tensor(tensor, device=target_device, dtype=torch.float32)
+
 if TYPE_CHECKING:
     from toolkit.lycoris_special import LycorisSpecialNetwork, LoConSpecialModule
     from toolkit.lora_special import LoRASpecialNetwork, LoRAModule
@@ -386,6 +393,11 @@ class ToolkitModuleMixin:
             weight = weight + multiplier * down_weight * scale
         elif len(weight.size()) == 2:
             # linear
+            device = weight.device
+            up_weight = ensure_same_device(up_weight, device)
+            down_weight = ensure_same_device(down_weight, device)
+            multiplier = ensure_same_device(multiplier, device)
+            scale = ensure_same_device(scale, device)
             weight = weight + multiplier * (up_weight @ down_weight) * scale
         elif down_weight.size()[2:4] == (1, 1):
             # conv2d 1x1

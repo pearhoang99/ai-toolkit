@@ -399,3 +399,18 @@ class ZImageModel(BaseModel):
             new_key = key.replace("diffusion_model.", "transformer.")
             new_sd[new_key] = value
         return new_sd
+
+
+class ZImageBaseModel(ZImageModel):
+    arch = "zimage-base"
+
+    def load_model(self):
+        # Tạm thời disable assistant_lora_path để không load adapter
+        original_assistant_lora_path = self.model_config.assistant_lora_path
+        self.model_config.assistant_lora_path = None
+        
+        try:
+            super().load_model()
+        finally:
+            # Khôi phục giá trị gốc
+            self.model_config.assistant_lora_path = original_assistant_lora_path
